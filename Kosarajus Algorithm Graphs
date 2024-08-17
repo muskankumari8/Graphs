@@ -1,0 +1,80 @@
+import java.util.*;
+public class Kosarajus_Graph {
+    public static class Edge{
+        int src;
+        int dest;
+        Edge(int s, int d){
+            this.src=s;
+            this.dest=d;
+        }
+    }
+    public static void createGraph(ArrayList<Edge> graph[]){
+        for(int i=0;i<graph.length;i++){
+            graph[i] = new ArrayList<>();
+        }
+        graph[0].add(new Edge(0,2));
+        graph[0].add(new Edge(0,3));
+        graph[1].add(new Edge(1,0));
+        graph[2].add(new Edge(2,1));
+        graph[3].add(new Edge(3,4));
+    }
+    public static void topsort(ArrayList<Edge> graph[], int cur, boolean vis[], Stack<Integer> st){
+        vis[cur] = true;
+        for(int i=0;i<graph[cur].size();i++){
+            Edge e = graph[cur].get(i);
+            if(!vis[e.dest]){
+                topsort(graph, e.dest, vis, st);
+            }
+        }
+        st.push(cur);
+    }
+    public static void dfs(ArrayList<Edge> graph[], int cur, boolean vis[]){
+        vis[cur]=true;
+        System.out.print(cur+" ");
+        for(int i=0;i<graph[cur].size();i++){
+            Edge e = graph[cur].get(i);
+            if(!vis[e.dest]){
+                dfs(graph, e.dest, vis);
+            }
+        }
+    }
+    public static void kojaraju(ArrayList<Edge> graph[], int V){
+        //Step1  O(V+E)
+        Stack<Integer> st = new Stack<>();
+        boolean vis[] = new boolean[V];
+        for(int i=0;i<V;i++){
+            if(!vis[i]){
+                topsort(graph, i, vis, st);
+            }
+        }
+
+        //Step2   O(V+E)
+        ArrayList<Edge> transpose[] = new ArrayList[V];
+        for(int i=0;i<graph.length;i++){
+            vis[i]=false;
+            transpose[i] = new ArrayList<>();
+        }
+        for(int i=0;i<V;i++){   // get all vertices
+            for(int j=0;j<graph[i].size();j++){    //get all edges
+                Edge e = graph[i].get(j);  //e.src -> e.dest
+                transpose[e.dest].add(new Edge(e.dest, e.src));
+            }
+        }
+
+
+        //Step3   O(V+E)
+        while(!st.isEmpty()){
+            int cur = st.pop();
+            if(!vis[cur]){
+                dfs(transpose, cur, vis);
+                System.out.println();
+            }
+        }
+    }
+    public static void main(String[] args) {
+        int V = 5;
+        ArrayList<Edge> graph[] = new ArrayList[V];
+        createGraph(graph);
+        kojaraju(graph, V);
+    }
+}
